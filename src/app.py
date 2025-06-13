@@ -11,7 +11,6 @@ def lambda_handler(event, context):
         response = table.get_item(Key={'id': 'counter'})
         count = response.get('Item', {}).get('views', 0)
 
-        # DynamoDB returns Decimal, convert it to int
         if isinstance(count, Decimal):
             count = int(count)
 
@@ -29,4 +28,3 @@ def lambda_handler(event, context):
             'statusCode': 500,
             'body': json.dumps({'error': 'Something went wrong'})
         }
-# xyz
