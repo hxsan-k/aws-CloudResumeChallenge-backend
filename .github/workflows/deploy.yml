@@ -27,10 +27,12 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Install pytest
+        run: pip install pytest
+
       - name: Run tests
-        run: |
-          # Add your test commands here, example:
-          pytest
+        run: pytest
+
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
