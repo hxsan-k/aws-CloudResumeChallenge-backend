@@ -1,7 +1,7 @@
 import boto3
 import pytest
 import json
-from moto import mock_dynamodb
+from moto import mock_dynamodb2
 from app import lambda_handler
 
 @pytest.fixture()
