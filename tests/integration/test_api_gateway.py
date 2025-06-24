@@ -1,5 +1,4 @@
 import os
-
 import boto3
 import pytest
 import requests
@@ -7,7 +6,6 @@ import requests
 """
 Make sure env variable AWS_SAM_STACK_NAME exists with the name of the stack we are going to test. 
 """
-
 
 class TestApiGateway:
 
@@ -25,7 +23,8 @@ class TestApiGateway:
             response = client.describe_stacks(StackName=stack_name)
         except Exception as e:
             raise Exception(
-                f"Cannot find stack {stack_name} \n" f'Please make sure a stack with the name "{stack_name}" exists'
+                f"Cannot find stack {stack_name} \n"
+                f'Please make sure a stack with the name "{stack_name}" exists'
             ) from e
 
         stacks = response["Stacks"]
@@ -42,4 +41,9 @@ class TestApiGateway:
         response = requests.get(api_gateway_url)
 
         assert response.status_code == 200
-        assert response.json() == {"message": "hello world"}
+
+        body = response.json()
+        assert "views" in body
+        assert isinstance(body["views"], int)
+        
+#abc
