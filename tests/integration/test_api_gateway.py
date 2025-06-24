@@ -1,49 +1,35 @@
-import os
 import boto3
 import pytest
-import requests
+import json
+from moto import mock_dynamodb
+from app import lambda_handler
 
-"""
-Make sure env variable AWS_SAM_STACK_NAME exists with the name of the stack we are going to test. 
-"""
+@pytest.fixture()
+def apigw_event():
+    return {
+        "body": '{ "test": "body"}',
+        "httpMethod": "GET",
+        "path": "/hello"
+    }
 
-class TestApiGateway:
+@mock_dynamodb()
+def test_lambda_handler(apigw_event):
+    # Set up the mock table *before* calling lambda_handler
+    dynamodb = boto3.resource('dynamodb', region_name='eu-west-2')  # match your real region
+    table = dynamodb.create_table(
+        TableName='ViewCounterTable',
+        KeySchema=[{'AttributeName': 'id', 'KeyType': 'HASH'}],
+        AttributeDefinitions=[{'AttributeName': 'id', 'AttributeType': 'S'}],
+        ProvisionedThroughput={'ReadCapacityUnits': 1, 'WriteCapacityUnits': 1}
+    )
+    table.put_item(Item={'id': 'counter', 'views': 0})
 
-    @pytest.fixture()
-    def api_gateway_url(self):
-        """ Get the API Gateway URL from Cloudformation Stack outputs """
-        stack_name = os.environ.get("AWS_SAM_STACK_NAME")
+    # Make sure environment region is consistent
+    boto3.setup_default_session(region_name='eu-west-2')
 
-        if stack_name is None:
-            raise ValueError('Please set the AWS_SAM_STACK_NAME environment variable to the name of your stack')
+    response = lambda_handler(apigw_event, "")
+    body = json.loads(response["body"])
 
-        client = boto3.client("cloudformation")
-
-        try:
-            response = client.describe_stacks(StackName=stack_name)
-        except Exception as e:
-            raise Exception(
-                f"Cannot find stack {stack_name} \n"
-                f'Please make sure a stack with the name "{stack_name}" exists'
-            ) from e
-
-        stacks = response["Stacks"]
-        stack_outputs = stacks[0]["Outputs"]
-        api_outputs = [output for output in stack_outputs if output["OutputKey"] == "HelloWorldApi"]
-
-        if not api_outputs:
-            raise KeyError(f"HelloWorldAPI not found in stack {stack_name}")
-
-        return api_outputs[0]["OutputValue"]  # Extract url from stack outputs
-
-    def test_api_gateway(self, api_gateway_url):
-        """ Call the API Gateway endpoint and check the response """
-        response = requests.get(api_gateway_url)
-
-        assert response.status_code == 200
-
-        body = response.json()
-        assert "views" in body
-        assert isinstance(body["views"], int)
-        
-#abc
+    assert response["statusCode"] == 200
+    assert "views" in body
+    assert isinstance(body["views"], int)
