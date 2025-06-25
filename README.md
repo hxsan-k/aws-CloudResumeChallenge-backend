@@ -1,36 +1,36 @@
 # Cloud Resume Challenge - Backend
 
-This repository contains the backend components for my Cloud Resume Challenge project.
+This repository contains the backend code and infrastructure for my Cloud Resume Challenge project.
 
 ## Overview
 
-The backend is built using AWS Lambda functions (Python) and API Gateway to serve API requests. It handles visitor count tracking and stores data in DynamoDB. The infrastructure is defined as code using AWS SAM (Serverless Application Model).
+The backend provides a serverless API that powers the visitor counter on my personal resume website. It is built using AWS Lambda, API Gateway, and DynamoDB.
 
 ## Features
 
-- Lambda function to handle API requests
-- DynamoDB table for storing visitor counts
-- Infrastructure as code using AWS SAM templates
-- API Gateway integration with Lambda
-- Simple REST API endpoint to increment and retrieve visitor count
+- **Visitor Counter API:** Tracks and stores page views in DynamoDB.
+- **Serverless Architecture:** Built with AWS Lambda and API Gateway.
+- **Infrastructure as Code:** All resources defined and deployed via AWS SAM.
+- **CI/CD Pipeline:** Automated testing and deployment using GitHub Actions.
 
-## Technologies
+## Tech Stack
 
-- AWS Lambda (Python 3.13)
-- Amazon API Gateway
-- Amazon DynamoDB
-- AWS SAM
+- **Language:** Python 3.9 
+- **AWS Services:** Lambda, API Gateway, DynamoDB, SAM (Serverless Application Model) 
+- **CI/CD:** GitHub Actions
 
-## Usage
+## Setup & Deployment
 
-1. Deploy the stack using SAM CLI:
+1. Clone this repo.
+2. Configure AWS credentials with appropriate permissions.
+3. Use AWS SAM CLI to build and deploy:
    ```bash
+   sam build
    sam deploy --guided
-2. The API endpoint will be available after deployment.
-3. Send GET requests to the /hello endpoint to retrieve and increment the visitor count.
+4.	CI/CD is configured to automatically run tests and deploy on push to main.
 
-## Repository Structure
+⚠️Notes
+	•	Unit tests for the Lambda function were causing issues with mocking DynamoDB, so only integration tests are enabled currently.
+	•	The live API URL is output by the CloudFormation stack and used by the frontend site.
 
-- template.yaml – AWS SAM template defining resources
-- hello_world/ – Lambda function code directory
-- events/ – Sample event files for local testing
+Thanks for checking out the backend! Feel free to explore or raise issues if needed.
